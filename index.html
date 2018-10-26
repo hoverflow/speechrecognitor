@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <style>
+        html {
+            font-family: 'Ubuntu',sans-serif;
+        }
+        textarea {
+            font-size: 14px;
+            font-family: 'Ubuntu',sans-serif;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
+        var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;
+        var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent;
+        var recog = new SpeechRecognition();
+
+
+        function writeIntoTextarea(testo) {
+            var val = $("textarea").val();
+            $("textarea").val(val + '\r\n   ' + testo);
+        }
+
+        function startlisten() {
+            var phrase = 'some coffee buddy?';
+            var grammar = '#JSGF V1.0; grammar phrase; public <phrase> = ' + phrase + ';';
+
+
+            var list = new SpeechGrammarList();
+            list.addFromString(grammar, 1);
+            recog.grammars = list;
+            recog.lang = $("#language").val();
+            recog.interimResults = false;
+            recog.maxAlternatives = 1;
+
+            recog.start();
+            writeIntoTextarea('Please speak, i can hear you!\r\n');
+
+            recog.onresult = function (event) {
+
+                var result = event.results[0][0].transcript;
+                console.log('res', result);
+                writeIntoTextarea(result);
+
+
+                recog.onspeechend = function () {
+                    console.log('speechend');
+
+                };
+
+                recog.onend = function () {
+                    console.log('end ');
+                    restartlisten();
+                };
+
+            };
+
+
+        }
+
+        function restartlisten() {
+            recog.start();
+        }
+    </script>
+</head>
+
+<body>
+    <h2>WebSpeech API recognition test</h2>
+    <div>Language: <input id="language" type="text" value="en-US" size="5" /></div>
+    <div>* Please insert language in the following format (example): "en-US" or "it-IT" or "es-ES"</div>
+    <div style="margin-top: 15px;"><input type="button" onclick="startlisten()" value="click to start recognition"
+            style="width: 250px; height: 40px; background-color: #ff9900; color: #fff; font-weight: bold; border: 1px solid gray; border-radius: 6px;cursor: pointer;" /></div>
+    <br />
+    <textarea cols="120" rows="30">
+
+    </textarea>
+    <div style="margin-top: 10px;">**credits**</div>
+    <h4>Realtime speech recognition based on Web Speech API</h4>
+    <a href="https://github.com/hoverflow/speechrecognitor">https://github.com/hoverflow/speechrecognitor</a>
+</body>
+</html>
